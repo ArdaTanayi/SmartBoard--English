@@ -1,0 +1,574 @@
+
+<span style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #3a7bd5 100%); color: #ffffff; font-size: 22px; font-weight: 800; font-family: 'Segoe UI', Roboto, sans-serif; padding: 12px 28px; border-radius: 50px; letter-spacing: 1.5px; box-shadow: 0 8px 20px rgba(42, 82, 152, 0.35); border: 1px solid rgba(255, 255, 255, 0.3); text-transform: uppercase; display: inline-flex; align-items: center; gap: 10px; backdrop-filter: blur(5px); text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
+  <span style="font-size: 18px; opacity: 0.9;">&lt;/&gt;</span>
+  <span>Developer: Arda Tanayi</span>
+</span>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartBoard English</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body { background-color: #f0f2f5; color: #1c1e21; display: flex; flex-direction: column; min-height: 100vh; }
+        header { background-color: #1a365d; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { font-size: 20px; font-weight: bold; }
+        .timer-box { background-color: #2b6cb0; padding: 6px 12px; border-radius: 6px; font-size: 15px; font-weight: bold; display: flex; gap: 8px; align-items: center; }
+        .timer-box button { background-color: #ffffff; color: #1a365d; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .grade-nav { display: flex; justify-content: center; background-color: #ffffff; border-bottom: 2px solid #cbd5e0; gap: 10px; padding: 10px; }
+        .nav-btn { padding: 8px 16px; border: 2px solid #3182ce; background-color: #ffffff; color: #3182ce; font-weight: bold; font-size: 14px; border-radius: 6px; cursor: pointer; }
+        .nav-btn.active, .nav-btn:hover { background-color: #3182ce; color: white; }
+        main { flex: 1; max-width: 850px; width: 100%; margin: 15px auto; padding: 0 15px; }
+        .card { background-color: #ffffff; border: 1px solid #cbd5e0; border-radius: 8px; padding: 20px; margin-bottom: 15px; }
+        .topics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 15px; }
+        .topic-card { background-color: #f7fafc; border: 2px solid #e2e8f0; border-radius: 6px; padding: 15px; text-align: center; cursor: pointer; }
+        .topic-card:hover { border-color: #3182ce; background-color: #ebf8ff; }
+        .topic-card h3 { color: #2b6cb0; font-size: 16px; margin-bottom: 5px; }
+        .topic-card p { color: #718096; font-size: 13px; }
+        .question-title { font-size: 18px; color: #2d3748; margin-bottom: 15px; line-height: 1.4; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .option-btn { background-color: #f7fafc; border: 2px solid #cbd5e0; padding: 12px; border-radius: 6px; font-size: 15px; text-align: left; cursor: pointer; font-weight: bold; color: #2d3748; }
+        .option-btn:hover { background-color: #edf2f7; border-color: #a0aec0; }
+        .option-btn.correct { background-color: #c6f6d5 !important; border-color: #38a169 !important; color: #22543d; }
+        .option-btn.wrong { background-color: #fed7d7 !important; border-color: #e53e3e !important; color: #742a2a; }
+        .btn-action { background-color: #38a169; color: white; border: none; padding: 10px 18px; font-size: 15px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+        .btn-action:hover { background-color: #2f855a; }
+        .btn-back { background-color: #718096; color: white; border: none; padding: 6px 12px; font-size: 13px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-bottom: 10px; }
+        .picker-box { font-size: 26px; font-weight: bold; color: #2b6cb0; padding: 20px; border: 2px dashed #3182ce; border-radius: 6px; margin: 15px 0; background-color: #f7fafc; text-align: center; }
+        .student-input-group { display: flex; gap: 8px; margin-bottom: 15px; }
+        .student-input-group input { flex: 1; padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 14px; }
+        .student-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; }
+        .student-tag { background-color: #e2e8f0; padding: 4px 10px; border-radius: 12px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+        .student-tag span { cursor: pointer; color: #e53e3e; font-weight: bold; }
+        footer { text-align: center; padding: 10px; background-color: #e2e8f0; color: #4a5568; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>SmartBoard English</h1>
+        <div class="timer-box">
+            ⏱️ <span id="timer-display">00:00</span>
+            <button onclick="toggleTimer()">Start/Stop</button>
+            <button onclick="resetTimer()">Reset</button>
+        </div>
+    </header>
+
+    <nav class="grade-nav">
+        <button class="nav-btn active" id="btn-grade5" onclick="showGradeTopics(5)">Grade 5 Units</button>
+        <button class="nav-btn" id="btn-grade6" onclick="showGradeTopics(6)">Grade 6 Units</button>
+        <button class="nav-btn" id="btn-picker" onclick="showPicker()">🎲 Student Picker</button>
+    </nav>
+
+    <main>
+        <!-- TOPIC SELECTION -->
+        <div id="topics-section" class="card">
+            <h2 id="topics-title" style="color: #2d3748; margin-bottom: 5px; font-size: 18px;">Grade 5 English Units</h2>
+            <p style="color: #718096; font-size: 14px;">Select a unit to start the quiz (20 Questions each):</p>
+            <div class="topics-grid" id="topics-container"></div>
+        </div>
+
+        <!-- QUIZ SECTION -->
+        <div id="quiz-section" class="card" style="display: none;">
+            <button class="btn-back" onclick="backToTopics()">⬅ Back to Units</button>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span id="unit-badge" style="background:#ebf8ff; color:#2b6cb0; padding:4px 10px; border-radius:4px; font-weight:bold; font-size: 14px;">Unit 1</span>
+                <span style="font-weight: bold; color: #4a5568;">Score: <span id="score" style="color:#2f855a;">0</span></span>
+            </div>
+            <h2 id="question-text" class="question-title" style="margin-top: 15px;">Loading question...</h2>
+            <div class="options-grid" id="options-container"></div>
+            <button class="btn-action" style="margin-top:15px; width:100%;" onclick="nextQuestion()">Next Question ➔</button>
+        </div>
+
+        <!-- STUDENT PICKER -->
+        <div id="picker-section" class="card" style="display: none;">
+            <h2 style="color: #2d3748; font-size: 18px; margin-bottom: 10px;">🎲 Random Student Picker</h2>
+            <div class="student-input-group">
+                <input type="text" id="student-name-input" placeholder="Type student names (e.g. Alex, Emma, John)">
+                <button class="btn-action" onclick="addStudent()">Add</button>
+            </div>
+            <div class="student-list" id="student-list-container"></div>
+            <div class="picker-box" id="picker-display">🎲 Roll the Dice</div>
+            <button class="btn-action" style="width:100%; font-size: 16px;" onclick="rollDice()">🎲 Pick Random Student</button>
+        </div>
+    </main>
+
+    <footer>
+        SmartBoard English - 20 Questions Edition
+    </footer>
+
+    <script>
+        const quizData = {
+            5: [
+                {
+                    unitTitle: "Unit 1: Hello!",
+                    questions: [
+                        { question: "Which school subject is related to numbers and calculation?", options: ["A) Music", "B) Maths", "C) Art", "D) Physical Education"], correct: 1 },
+                        { question: "'I love doing science experiments in the lab.' Which subject is it?", options: ["A) Science", "B) History", "C) Geography", "D) Drama"], correct: 0 },
+                        { question: "What does 'P.E.' stand for in school subjects?", options: ["A) Primary Education", "B) Physical Education", "C) Public Event", "D) Private Examination"], correct: 1 },
+                        { question: "Which of the following shows a school object?", options: ["A) School bag", "B) Country", "C) Language", "D) Timetable"], correct: 0 },
+                        { question: "'Where are you from?' Choose the correct answer:", options: ["A) I am 11 years old.", "B) I am from Spain.", "C) I like English.", "D) My name is David."], correct: 1 },
+                        { question: "'She speaks German and English.' What do German and English represent?", options: ["A) Countries", "B) Languages", "C) School subjects", "D) Hobbies"], correct: 1 },
+                        { question: "Which expression means 'Nice to meet you'?", options: ["A) Good morning", "B) Glad to meet you", "C) Goodbye", "D) See you later"], correct: 1 },
+                        { question: "'I like drawing and painting.' Which class is this?", options: ["A) Art", "B) Maths", "C) History", "D) Science"], correct: 0 },
+                        { question: "Which of the following is a country?", options: ["A) Spanish", "B) Turkish", "C) France", "D) English"], correct: 2 },
+                        { question: "Which sentence asks about age?", options: ["A) Where are you from?", "B) What is your name?", "C) How old are you?", "D) How are you?"], correct: 2 },
+                        { question: "In Information Technology (I.T.) class, students usually use ______.", options: ["A) Guitars", "B) Computers", "C) Paints", "D) Microscopes"], correct: 1 },
+                        { question: "Which word means a weekly schedule of school lessons?", options: ["A) Timetable", "B) Dictionary", "C) Notebook", "D) Blackboard"], correct: 0 },
+                        { question: "Which pair correctly matches a Country and its Language?", options: ["A) Spain - Spanish", "B) Germany - Turkish", "C) Italy - English", "D) Japan - French"], correct: 0 },
+                        { question: "'I hate ______ because I can't run fast.' Choose the correct option:", options: ["A) P.E.", "B) Music", "C) Art", "D) Drama"], correct: 0 },
+                        { question: "'What is your favourite subject?' Choose the best response:", options: ["A) I am fine.", "B) English is my favourite.", "C) I am from Italy.", "D) At 8 o'clock."], correct: 1 },
+                        { question: "Which class involves studying world maps, rivers, and mountains?", options: ["A) Geography", "B) Music", "C) Maths", "D) Drama"], correct: 0 },
+                        { question: "What is the nationality of a person from Japan?", options: ["A) Japanese", "B) Japanian", "C) Japander", "D) Japaneseish"], correct: 0 },
+                        { question: "'How many languages do you speak?' Choose the correct reply:", options: ["A) I speak two languages.", "B) I am from Germany.", "C) Yes, I do.", "D) I like history."], correct: 0 },
+                        { question: "In Social Studies class, students learn about ______.", options: ["A) Past events and society", "B) Chemical reactions", "C) Playing instruments", "D) Solving equations"], correct: 0 },
+                        { question: "Which greeting is used when saying goodbye to a friend?", options: ["A) See you soon", "B) Good morning", "C) How do you do", "D) Hello"], correct: 0 }
+                    ]
+                },
+                {
+                    unitTitle: "Unit 2: My Town",
+                    questions: [
+                        { question: "Where can you buy bread and fresh pastries?", options: ["A) Library", "B) Bakery", "C) Pharmacy", "D) Bus Stop"], correct: 1 },
+                        { question: "The pharmacy is ______ the bank and the cafe.", options: ["A) under", "B) between", "C) behind", "D) inside"], correct: 1 },
+                        { question: "Where do you go to borrow or read books?", options: ["A) Toy shop", "B) Library", "C) Butcher", "D) Hospital"], correct: 1 },
+                        { question: "'Excuse me, how can I get to the hospital?' What is the person asking?", options: ["A) Hospital opening hours", "B) Directions to the hospital", "C) Doctor's name", "D) Ticket price"], correct: 1 },
+                        { question: "What does 'Go straight ahead and turn left' mean?", options: ["A) Move forward and turn left", "B) Turn right immediately", "C) Go back to the corner", "D) Stop and wait"], correct: 0 },
+                        { question: "Where do you go when you need to buy medicine?", options: ["A) Chemist's / Pharmacy", "B) Cinema", "C) Police Station", "D) Pool"], correct: 0 },
+                        { question: "Which preposition means 'across from' or facing something?", options: ["A) Next to", "B) Opposite", "C) Behind", "D) On"], correct: 1 },
+                        { question: "Where do people wait for a bus?", options: ["A) Bus stop", "B) Barber", "C) Bakery", "D) Zoo"], correct: 0 },
+                        { question: "'The playground is NEXT TO the school.' Where is the playground?", options: ["A) Behind the school", "B) Beside/Adjacent to the school", "C) Inside the school", "D) Opposite the school"], correct: 1 },
+                        { question: "Which phrase is NOT used for giving directions?", options: ["A) Turn right", "B) Go straight ahead", "C) Cross the street", "D) I love ice cream"], correct: 3 },
+                        { question: "Where do you go to deposit or withdraw money?", options: ["A) Bank", "B) Museum", "C) Cafe", "D) Park"], correct: 0 },
+                        { question: "Which word is the opposite of 'in front of'?", options: ["A) Next to", "B) Behind", "C) Near", "D) Under"], correct: 1 },
+                        { question: "Where do you go to watch new movies on a big screen?", options: ["A) Cinema", "B) Library", "C) Post office", "D) Fire station"], correct: 0 },
+                        { question: "Where do you post letters and send parcels?", options: ["A) Post office", "B) Bakery", "C) Toy shop", "D) School"], correct: 0 },
+                        { question: "If a place is 'in front of' a park, it is ______.", options: ["A) Behind it", "B) At the back", "C) Ahead of it", "D) Underneath it"], correct: 2 },
+                        { question: "Where can you buy fresh meat?", options: ["A) Butcher's", "B) Grocery", "C) Bookstore", "D) Stationery"], correct: 0 },
+                        { question: "Where can you see historical objects and art?", options: ["A) Museum", "B) Pharmacy", "C) Bus stop", "D) Bakery"], correct: 0 },
+                        { question: "Where can children play on swings and slides?", options: ["A) Playground", "B) Bank", "C) Post office", "D) Police station"], correct: 0 },
+                        { question: "Which phrase means 'turn at the corner'?", options: ["A) Take the corner", "B) Turn around", "C) Go past", "D) Go straight"], correct: 0 },
+                        { question: "Where can you buy notebooks, pens, and pencils?", options: ["A) Stationery shop", "B) Bakery", "C) Chemist's", "D) Hospital"], correct: 0 }
+                    ]
+                },
+                {
+                    unitTitle: "Unit 3: Games and Hobbies",
+                    questions: [
+                        { question: "Which one is an outdoor activity?", options: ["A) Blind man's buff", "B) Origami", "C) Chess", "D) Computer games"], correct: 0 },
+                        { question: "'I can play chess, but I ______ play dodgeball.'", options: ["A) can", "B) can't", "C) do", "D) am"], correct: 1 },
+                        { question: "Which game is played with Xs and Os on a grid?", options: ["A) Hide and seek", "B) Tic-tac-toe", "C) Hopscotch", "D) Dodgeball"], correct: 1 },
+                        { question: "What do players do in 'Hide and Seek'?", options: ["A) Fold paper", "B) Hide and search for players", "C) Sing songs", "D) Ride bicycles"], correct: 1 },
+                        { question: "Which one is an indoor hobby?", options: ["A) Camping", "B) Origami", "C) Fishing", "D) Hiking"], correct: 1 },
+                        { question: "Which game requires jumping on numbered squares drawn on the ground?", options: ["A) Hopscotch", "B) Blind man's buff", "C) Dodgeball", "D) Chess"], correct: 0 },
+                        { question: "What activity involves making shapes from clay or stone?", options: ["A) Sculpting", "B) Writing", "C) Dancing", "D) Swimming"], correct: 0 },
+                        { question: "In which sport do you throw a ball to hit opposing players?", options: ["A) Dodgeball", "B) Football", "C) Basketball", "D) Tennis"], correct: 0 },
+                        { question: "'Is he good at playing the guitar?' Choose the positive response:", options: ["A) No, he isn't.", "B) Yes, he is.", "C) Yes, I can.", "D) No, he can't."], correct: 1 },
+                        { question: "What equipment is needed for 'Rope skipping'?", options: ["A) A rope", "B) A ball", "C) A racket", "D) A board"], correct: 0 },
+                        { question: "What do you use a camera for?", options: ["A) Taking photos", "B) Drawing pictures", "C) Listening to music", "D) Watching films"], correct: 0 },
+                        { question: "Which item is essential for camping outdoors?", options: ["A) Tent", "B) Computer", "C) Racket", "D) Pencil"], correct: 0 },
+                        { question: "Where do people usually go hiking?", options: ["A) In a classroom", "B) In nature/mountains", "C) In a swimming pool", "D) At home"], correct: 1 },
+                        { question: "Which sentence expresses ability using 'can'?", options: ["A) I can swim fast.", "B) I am a student.", "C) My name is Tom.", "D) This is a book."], correct: 0 },
+                        { question: "What does 'Collecting stamps' mean?", options: ["A) Gathering postage stamps as a hobby", "B) Reading books", "C) Riding a bike", "D) Singing songs"], correct: 0 },
+                        { question: "What is the traditional Japanese art of paper folding called?", options: ["A) Origami", "B) Sculpting", "C) Hopscotch", "D) Tic-tac-toe"], correct: 0 },
+                        { question: "Which game is played on a checkered board with king and queen pieces?", options: ["A) Chess", "B) Dodgeball", "C) Origami", "D) Fishing"], correct: 0 },
+                        { question: "What activity involves catching fish using a rod and line?", options: ["A) Fishing", "B) Hiking", "C) Camping", "D) Sculpting"], correct: 0 },
+                        { question: "In 'Blind man's buff', what does the main player wear?", options: ["A) A blindfold", "B) A helmet", "C) A coat", "D) Gloves"], correct: 0 },
+                        { question: "'I am good at ______ pictures.' Choose the correct form:", options: ["A) drawing", "B) draw", "C) drew", "D) draws"], correct: 0 }
+                    ]
+                },
+                {
+                    unitTitle: "Unit 4: My Daily Routine",
+                    questions: [
+                        { question: "I ______ my teeth every morning and night.", options: ["A) wash", "B) brush", "C) comb", "D) do"], correct: 1 },
+                        { question: "What time do you ______ up in the morning?", options: ["A) wake", "B) go", "C) brush", "D) read"], correct: 0 },
+                        { question: "I ______ to bed at 10 o'clock every night.", options: ["A) wake", "B) go", "C) wash", "D) comb"], correct: 1 },
+                        { question: "Which action means putting on clothes?", options: ["A) Get dressed", "B) Wash face", "C) Have breakfast", "D) Leave home"], correct: 0 },
+                        { question: "What do people usually eat at 7:30 in the morning?", options: ["A) Lunch", "B) Breakfast", "C) Dinner", "D) Snack"], correct: 1 },
+                        { question: "What action do you perform with a comb?", options: ["A) Comb hair", "B) Brush teeth", "C) Take a shower", "D) Wash hands"], correct: 0 },
+                        { question: "What phrase means reaching school in the morning?", options: ["A) Leave school", "B) Arrive at school", "C) Clean school", "D) Study lessons"], correct: 1 },
+                        { question: "What do students do after school to practice their lessons?", options: ["A) Do homework", "B) Clean house", "C) Cook dinner", "D) Play video games"], correct: 0 },
+                        { question: "What do you do to clean your face in the morning?", options: ["A) Wash face", "B) Brush hair", "C) Sleep", "D) Go to bed"], correct: 0 },
+                        { question: "Where do you go to wash your body with water?", options: ["A) Take a shower", "B) Go for a walk", "C) Prepare breakfast", "D) Listen to music"], correct: 0 },
+                        { question: "Which question asks for the current time?", options: ["A) What day is it?", "B) What time is it?", "C) When are you coming?", "D) How old are you?"], correct: 1 },
+                        { question: "How do you travel to school on a public vehicle?", options: ["A) Catch the bus", "B) Fly a plane", "C) Ride a horse", "D) Fly a kite"], correct: 0 },
+                        { question: "When do people usually have dinner?", options: ["A) In the morning", "B) In the evening", "C) At noon", "D) Early morning"], correct: 1 },
+                        { question: "What should students do when the teacher is speaking?", options: ["A) Listen to the teacher", "B) Ask random questions", "C) Erase the board", "D) Write in notebook"], correct: 0 },
+                        { question: "Which one is NOT a common daily routine activity?", options: ["A) Wake up", "B) Brush teeth", "C) Travel to Jupiter", "D) Have lunch"], correct: 2 },
+                        { question: "At what time of day do people have lunch?", options: ["A) At noon / 12:00", "B) Midnight", "C) 6:00 AM", "D) 10:00 PM"], correct: 0 },
+                        { question: "What action means exiting your house in the morning?", options: ["A) Leave home", "B) Arrive home", "C) Clean house", "D) Go to bed"], correct: 0 },
+                        { question: "'She ______ her homework at 5 PM.' Choose the correct verb:", options: ["A) does", "B) do", "C) doing", "D) did"], correct: 0 },
+                        { question: "What do you do before sleeping at night?", options: ["A) Read a book", "B) Run a marathon", "C) Go to school", "D) Have lunch"], correct: 0 },
+                        { question: "Which phrase describes returning home from school?", options: ["A) Come back home", "B) Leave school early", "C) Go to class", "D) Wake up"], correct: 0 }
+                    ]
+                },
+                {
+                    unitTitle: "Unit 5: Health",
+                    questions: [
+                        { question: "'I have a headache.' Where is the pain?", options: ["A) Tooth", "B) Stomach", "C) Head", "D) Throat"], correct: 2 },
+                        { question: "If you have a terrible 'toothache', who should you visit?", options: ["A) Dentist", "B) Baker", "C) Librarian", "D) Teacher"], correct: 0 },
+                        { question: "'You should take medicine and rest.' What type of sentence is this?", options: ["A) An order", "B) Advice / Suggestion", "C) A greeting", "D) A question"], correct: 1 },
+                        { question: "What pain is located in the throat?", options: ["A) Sore throat", "B) Earache", "C) Backache", "D) Fever"], correct: 0 },
+                        { question: "If someone has a high body temperature, they have a ______.", options: ["A) fever", "B) broken leg", "C) cough", "D) good mood"], correct: 0 },
+                        { question: "What should you NOT do if you have a sore throat?", options: ["A) Drink cold water", "B) Rest in bed", "C) Drink warm tea", "D) Take medicine"], correct: 0 },
+                        { question: "Which health issue is related to pain in the stomach area?", options: ["A) Stomachache", "B) Headache", "C) Eye pain", "D) Broken arm"], correct: 0 },
+                        { question: "'He is coughing continuously.' What illness does he likely have?", options: ["A) A cough", "B) A fever", "C) A toothache", "D) Exhaustion"], correct: 0 },
+                        { question: "What do you put on a small cut or wound?", options: ["A) Plaster / Bandage", "B) Medicine syrup", "C) Pill", "D) Thermometer"], correct: 0 },
+                        { question: "'You shouldn't drink cold water.' What does this mean?", options: ["A) Drink cold water now", "B) It is bad to drink cold water", "C) You can drink warm water", "D) Don't forget water"], correct: 1 },
+                        { question: "If someone has a severe backache, what should they avoid?", options: ["A) Carrying heavy objects", "B) Resting in bed", "C) Seeing a doctor", "D) Staying at home"], correct: 0 },
+                        { question: "What liquid medicine do children take for a cough?", options: ["A) Syrup", "B) Pill", "C) Ointment", "D) Bandage"], correct: 0 },
+                        { question: "'I feel cold, sneezing, and tired.' What illness is this?", options: ["A) Flu", "B) Toothache", "C) Broken arm", "D) Cut finger"], correct: 0 },
+                        { question: "'You should stay in bed.' What is advised?", options: ["A) Rest in bed", "B) Go to school", "C) Play outside", "D) Exercise"], correct: 0 },
+                        { question: "When do you need a tissue?", options: ["A) When you have a runny nose", "B) When your leg is broken", "C) When your tooth hurts", "D) When you are hungry"], correct: 0 },
+                        { question: "What instrument is used to measure body temperature?", options: ["A) Thermometer", "B) Scale", "C) Microscope", "D) Ruler"], correct: 0 },
+                        { question: "What type of pain affects the ear?", options: ["A) Earache", "B) Headache", "C) Backache", "D) Toothache"], correct: 0 },
+                        { question: "'She has a broken arm.' What should she wear?", options: ["A) A cast / sling", "B) A plaster", "C) Glasses", "D) A hat"], correct: 0 },
+                        { question: "Which modal verb is used to give advice on health problems?", options: ["A) should", "B) must", "C) can", "D) will"], correct: 0 },
+                        { question: "What should you do if you feel very sick?", options: ["A) See a doctor", "B) Go running", "C) Eat ice cream", "D) Play video games"], correct: 0 }
+                    ]
+                }
+            ],
+            6: [
+                {
+                    unitTitle: "Unit 1: Life",
+                    questions: [
+                        { question: "What time is it? (08:30)", options: ["A) It is half past eight.", "B) It is quarter past eight.", "C) It is eight o'clock.", "D) It is ten to nine."], correct: 0 },
+                        { question: "I attend a folk dance course ______ weekends.", options: ["A) in", "B) at", "C) on", "D) under"], correct: 2 },
+                        { question: "What does 'take care of the dog' mean?", options: ["A) Feed the dog", "B) Look after / care for the dog", "C) Walk the dog", "D) Buy a dog"], correct: 1 },
+                        { question: "Which phrase means doing small daily tasks or chores?", options: ["A) Run errands", "B) Go running", "C) Study lessons", "D) Sleep early"], correct: 0 },
+                        { question: "How do you write the date '15 May' in words?", options: ["A) The fifteenth of May", "B) May fifty", "C) The five of May", "D) May fifteen"], correct: 0 },
+                        { question: "What does 'finish all homework' mean?", options: ["A) Complete all assignments", "B) Forget to do homework", "C) Check assignments", "D) Receive new homework"], correct: 0 },
+                        { question: "Which digital time matches 'quarter to ten'?", options: ["A) 10:15", "B) 09:45", "C) 10:45", "D) 09:15"], correct: 1 },
+                        { question: "'What time do you wake up?' Choose the correct answer:", options: ["A) At 7 o'clock.", "B) On Monday.", "C) In the bedroom.", "D) Yes, I do."], correct: 0 },
+                        { question: "Which action shows helping family at home?", options: ["A) Help my mother", "B) Listen to music", "C) Go shopping alone", "D) Play games"], correct: 0 },
+                        { question: "What does 'visit grandparents' mean?", options: ["A) Going to see grandfather and grandmother", "B) Eating with family", "C) Going on holiday", "D) Meeting friends"], correct: 0 },
+                        { question: "How do you state the time 07:15 in English?", options: ["A) It is quarter past seven.", "B) It is quarter to seven.", "C) It is half past seven.", "D) It is seven o'clock."], correct: 0 },
+                        { question: "Which day is part of the weekend?", options: ["A) Monday", "B) Wednesday", "C) Sunday", "D) Thursday"], correct: 2 },
+                        { question: "What is the meaning of 'after school'?", options: ["A) Before school starts", "B) When school finishes", "C) During school hours", "D) At school entrance"], correct: 1 },
+                        { question: "What activity involves learning cultural dances?", options: ["A) Take traditional dance courses", "B) Listen to pop music", "C) Do sports", "D) Go to art class"], correct: 0 },
+                        { question: "What does 'keep a diary' mean?", options: ["A) Write daily personal experiences in a notebook", "B) Read storybooks", "C) Write letters", "D) Draw pictures"], correct: 0 },
+                        { question: "Which month comes right after April?", options: ["A) May", "B) June", "C) March", "D) July"], correct: 0 },
+                        { question: "What preposition is used before specific dates (e.g. 25th of December)?", options: ["A) on", "B) in", "C) at", "D) by"], correct: 0 },
+                        { question: "What time is 12:00 PM usually called?", options: ["A) Noon", "B) Midnight", "C) Morning", "D) Evening"], correct: 0 },
+                        { question: "What time is 12:00 AM usually called?", options: ["A) Midnight", "B) Noon", "C) Afternoon", "D) Morning"], correct: 0 },
+                        { question: "What phrase means walking the dog outside?", options: ["A) Take the dog for a walk", "B) Feed the dog", "C) Wash the dog", "D) Buy a dog"], correct: 0 }
+                    ]
+                },
+                {
+                    unitTitle: "Unit 2: Yummy Breakfast",
+                    questions: [
+                        { question: "Which one is a healthy drink for breakfast?", options: ["A) Junk food", "B) Fresh orange juice", "C) Muffin", "D) Salami"], correct: 1 },
+                        { question: "'Can I have some butter, please?' Choose the response when none is left:", options: ["A) No, I don't", "B) Yummy!", "C) Sure, it is nutritious", "D) Sorry, it's all gone"], correct: 3 },
+                        { question: "What does the adjective 'nutritious' mean?", options: ["A) Good for health and growth", "B) Harmful to health", "C) Very oily", "D) Too sweet"], correct: 0 },
+                        { question: "Which item is NOT typically eaten at breakfast?", options: ["A) Cheese", "B) Olives", "C) Fish", "D) Honey"], correct: 2 },
+                        { question: "'Do you want some tea?' Choose the polite refusal:", options: ["A) Yes, please.", "B) No, thanks.", "C) Sure, I love it.", "D) Of course."], correct: 1 },
+                        { question: "What is 'junk food'?", options: ["A) Healthy food", "B) Unhealthy snack foods", "C) Fruit plate", "D) Home-cooked meal"], correct: 1 },
+                        { question: "Which ring-shaped bread product is popular at breakfast?", options: ["A) Bagel", "B) Toast", "C) Biscuit", "D) Cake"], correct: 0 },
+                        { question: "'I prefer olives to cheese.' What does this person like more?", options: ["A) Cheese", "B) Olives", "C) Neither", "D) Both equally"], correct: 1 },
+                        { question: "In which country is the croissant a famous breakfast food?", options: ["A) France", "B) Turkey", "C) Japan", "D) Italy"], correct: 0 },
+                        { question: "What dish consists of breakfast grains served with milk?", options: ["A) Cereal with milk", "B) Cheese bread", "C) Fruit yogurt", "D) Egg toast"], correct: 0 },
+                        { question: "What sweet topping is often poured over pancakes?", options: ["A) Honey / Maple syrup", "B) Salt", "C) Pepper", "D) Ketchup"], correct: 0 },
+                        { question: "'It's my favourite!' What does this mean?", options: ["A) I like it the most!", "B) I hate it!", "C) It is too expensive!", "D) It is very spicy!"], correct: 0 },
+                        { question: "What are eggs cooked in a pan with oil called?", options: ["A) Boiled eggs", "B) Fried eggs", "C) Poached eggs", "D) Omelette"], correct: 1 },
+                        { question: "Which meat product is commonly served sliced or grilled at breakfast?", options: ["A) Sausage", "B) Cheese", "C) Olive", "D) Honey"], correct: 0 },
+                        { question: "What sweet fruit spread is eaten on bread?", options: ["A) Jam", "B) Butter", "C) Salt", "D) Milk"], correct: 0 },
+                        { question: "Which word means 'delicious' or tasty?", options: ["A) Yummy", "B) Bitter", "C) Sour", "D) Salty"], correct: 0 },
+                        { question: "What hot beverage made from leaves is popular at breakfast in Turkey?", options: ["A) Tea", "B) Lemonade", "C) Cold water", "D) Soda"], correct: 0 },
+                        { question: "'Do you want some lemonade?' Choose the polite acceptance:", options: ["A) Yes, please.", "B) No, thanks.", "C) I don't like it.", "D) Never."], correct: 0 },
+                        { question: "What is cooked egg prepared by boiling in water?", options: ["A) Boiled egg", "B) Fried egg", "C) Omelette", "D) Scrambled egg"], correct: 0 },
+                        { question: "Which word is the opposite of 'healthy'?", options: ["A) Unhealthy", "B) Nutritious", "C) Fresh", "D) Tasty"], correct: 0 }
+                    ]
+                },
+                {
+                    unitTitle: "Unit 3: Downtown",
+                    questions: [
+                        { question: "A skyscraper is ______ than a normal house.", options: ["A) higher", "B) smaller", "C) shorter", "D) cheaper"], correct: 0 },
+                        { question: "A big city is usually ______ than a quiet village.", options: ["A) more crowded", "B) quieter", "C) smaller", "D) cheaper"], correct: 0 },
+                        { question: "What does 'Downtown' mean?", options: ["A) City centre", "B) Countryside", "C) Forest", "D) Mountain"], correct: 0 },
+                        { question: "What is the opposite of 'quiet'?", options: ["A) Noisy", "B) Small", "C) Fast", "D) Clean"], correct: 0 },
+                        { question: "Which tense is used to describe actions happening right now?", options: ["A) Present Continuous Tense (-ing)", "B) Simple Past Tense", "C) Future Tense", "D) Simple Present Tense"], correct: 0 },
+                        { question: "'She is waiting at the bus stop NOW.' What does 'now' indicate?", options: ["A) Yesterday", "B) At this moment", "C) Tomorrow", "D) Always"], correct: 1 },
+                        { question: "What is a line of vehicles moving very slowly or stopped?", options: ["A) Traffic jam", "B) Traffic police", "C) Traffic light", "D) Highway"], correct: 0 },
+                        { question: "What can you buy at a kiosk or newsagent?", options: ["A) Newspaper / Magazine", "B) Meat", "C) Shoes", "D) Medicine"], correct: 0 },
+                        { question: "'A city is ______ than a village.' Choose the best comparative:", options: ["A) more exciting", "B) quieter", "C) slower", "D) cheaper"], correct: 0 },
+                        { question: "'What are you doing at the moment?' Choose the correct answer:", options: ["A) I am reading a book.", "B) I go to school every day.", "C) I went to market yesterday.", "D) I will play football."], correct: 0 },
+                        { question: "What does 'feed the street dogs' mean?", options: ["A) Give food to stray dogs", "B) Run away from dogs", "C) Buy a dog", "D) Wash a dog"], correct: 0 },
+                        { question: "Where can you find many different shops inside one large building?", options: ["A) Shopping mall", "B) School yard", "C) Bus stop", "D) Park"], correct: 0 },
+                        { question: "What is a public road in a city or town with houses/shops?", options: ["A) Street", "B) House", "C) Bridge", "D) Field"], correct: 0 },
+                        { question: "What is the comparative form of 'slow'?", options: ["A) Slower", "B) Faster", "C) Bigger", "D) More expensive"], correct: 0 },
+                        { question: "What is the opposite of 'clean'?", options: ["A) Dirty", "B) Neat", "C) Stylish", "D) Long"], correct: 0 },
+                        { question: "What is a structure built over a river or road to allow crossing?", options: ["A) Bridge", "B) Skyscraper", "C) Kiosk", "D) Tunnel"], correct: 0 },
+                        { question: "What is the comparative form of 'fast'?", options: ["A) Faster", "B) Slower", "C) Fastly", "D) More fast"], correct: 0 },
+                        { question: "Where do people walk safely beside a street?", options: ["A) Pavement / Sidewalk", "B) Highway", "C) River", "D) Bridge"], correct: 0 },
+                        { question: "'He is ______ football right now.' Choose the correct verb form:", options: ["A) playing", "B) plays", "C) played", "D) play"], correct: 0 },
+                        { question: "What signal lights control traffic at road intersections?", options: ["A) Traffic lights", "B) Street lights", "C) Kiosk lights", "D) Car lights"], correct: 0 }
+                    ]
+                },
+                {
+                    unitTitle: "Unit 4: Weather and Emotions",
+                    questions: [
+                        { question: "How is the weather? It is ______ and I feel scared.", options: ["A) sunny", "B) stormy", "C) warm", "D) pleasant"], correct: 1 },
+                        { question: "'I feel happy on ______ days.' Choose the best fitting weather:", options: ["A) sunny", "B) rainy", "C) foggy", "D) stormy"], correct: 0 },
+                        { question: "What temperature range describes 'freezing' weather?", options: ["A) Below zero degrees", "B) 35 Degrees", "C) 25 Degrees", "D) 40 Degrees"], correct: 0 },
+                        { question: "How does a person feel when they are 'anxious or nervous'?", options: ["A) Worried / Uneasy", "B) Very happy", "C) Sleepy", "D) Energetic"], correct: 0 },
+                        { question: "Why is driving dangerous on 'foggy' days?", options: ["A) Visibility is low", "B) Roads are hot", "C) Cars move too fast", "D) It is very bright"], correct: 0 },
+                        { question: "What is the bright flash of electricity in the sky during a storm?", options: ["A) Lightning", "B) Raindrop", "C) Snowflake", "D) Wind"], correct: 0 },
+                        { question: "'What is the temperature?' What does this question ask?", options: ["A) How hot or cold it is", "B) What time it is", "C) What day it is", "D) Where you are going"], correct: 0 },
+                        { question: "'I feel sleepy when it is ______.' Choose the option:", options: ["A) rainy", "B) sunny", "C) hot", "D) windy"], correct: 0 },
+                        { question: "What activity is popular on a 'snowy' day?", options: ["A) Make a snowman", "B) Swim in the sea", "C) Wear sunglasses", "D) Drink iced tea"], correct: 0 },
+                        { question: "What does 'scared' mean?", options: ["A) Frightened / Afraid", "B) Cheerful", "C) Sad", "D) Angry"], correct: 0 },
+                        { question: "What object can fly high in the sky on a 'windy' day?", options: ["A) A kite", "B) A car", "C) A house", "D) A dog"], correct: 0 },
+                        { question: "When the sky is covered with clouds, the weather is ______.", options: ["A) cloudy", "B) sunny", "C) snowy", "D) windy"], correct: 0 },
+                        { question: "How does a 'moody' person act?", options: ["A) Their mood changes quickly", "B) Always happy", "C) Very hardworking", "D) Playful"], correct: 0 },
+                        { question: "Which adjective means 'extraordinary or wonderful'?", options: ["A) Fabulous", "B) Bad", "C) Boring", "D) Cold"], correct: 0 },
+                        { question: "What type of weather features small balls of ice falling from clouds?", options: ["A) Hail", "B) Fog", "C) Cloud", "D) Sunshine"], correct: 0 },
+                        { question: "What instrument measures temperature in degrees?", options: ["A) Thermometer", "B) Barometer", "C) Compass", "D) Clock"], correct: 0 },
+                        { question: "What season is associated with hot weather and sunny skies?", options: ["A) Summer", "B) Winter", "C) Autumn", "D) Spring"], correct: 0 },
+                        { question: "How do people feel on a warm and sunny spring day?", options: ["A) Cheerful / Happy", "B) Scared", "C) Angry", "D) Anxious"], correct: 0 },
+                        { question: "What weather phenomenon produces thunder and lightning?", options: ["A) Thunderstorm", "B) Sunshine", "C) Breeze", "D) Fog"], correct: 0 },
+                        { question: "What is the sound that follows lightning in a storm?", options: ["A) Thunder", "B) Rain", "C) Wind", "D) Snow"], correct: 0 }
+                    ]
+                },
+                {
+                    unitTitle: "Unit 5: At the Fair",
+                    questions: [
+                        { question: "Which ride goes up and down at high speeds on a track?", options: ["A) Roller coaster", "B) Bumper cars", "C) Carousel", "D) Ferris wheel"], correct: 0 },
+                        { question: "'I think bumper cars are ______.' Choose a positive adjective:", options: ["A) exciting", "B) boring", "C) slow", "D) sad"], correct: 0 },
+                        { question: "Which giant rotating wheel has passenger cars attached to its rim?", options: ["A) Ferris wheel", "B) Carousel", "C) Bumper car", "D) Roller coaster"], correct: 0 },
+                        { question: "What figures do children usually sit on when riding a carousel?", options: ["A) Wooden horses", "B) Flying planes", "C) Fast trains", "D) Bumper cars"], correct: 0 },
+                        { question: "In which amusement ride do players drive small electric cars into each other?", options: ["A) Bumper cars", "B) Ferris wheel", "C) Ghost train", "D) Swing"], correct: 0 },
+                        { question: "What do you need to purchase to go on fairground rides?", options: ["A) Token / Ticket", "B) Book", "C) Pencil", "D) Clothes"], correct: 0 },
+                        { question: "How would you describe a 'ghost train' ride?", options: ["A) Frightening / Scary", "B) Funny", "C) Boring", "D) Slow"], correct: 0 },
+                        { question: "'I agree with you.' What does this mean?", options: ["A) I share your opinion", "B) I disagree with you", "C) I cannot hear you", "D) I don't know you"], correct: 0 },
+                        { question: "'I disagree.' What does this mean?", options: ["A) I do not share your opinion", "B) I completely agree", "C) You are right", "D) That's true"], correct: 0 },
+                        { question: "Where can you find carnival games, rides, and food stalls?", options: ["A) Funfair / Fair", "B) School yard", "C) Library", "D) Hospital"], correct: 0 },
+                        { question: "Which word means 'extremely scary'?", options: ["A) Terrifying", "B) Funny", "C) Boring", "D) Relaxing"], correct: 0 },
+                        { question: "What ride attracts people looking for a thrilling rush?", options: ["A) Roller coaster", "B) Small train", "C) Bench", "D) Tea cups"], correct: 0 },
+                        { question: "Which spun-sugar sweet treat is popular at carnivals?", options: ["A) Cotton candy", "B) Chocolate", "C) Ice cream", "D) Biscuit"], correct: 0 },
+                        { question: "Which adjective means 'causing great surprise or wonder'?", options: ["A) Amazing", "B) Bad", "C) Boring", "D) Expensive"], correct: 0 },
+                        { question: "'What do you think about the fair?' What does this question ask?", options: ["A) Asking for your opinion about the fair", "B) Asking where the fair is", "C) Asking the ticket price", "D) Asking when to go"], correct: 0 },
+                        { question: "What is the opposite of 'boring'?", options: ["A) Exciting / Interesting", "B) Dull", "C) Slow", "D) Quiet"], correct: 0 },
+                        { question: "What do you call a person attending a funfair?", options: ["A) Visitor", "B) Teacher", "C) Doctor", "D) Driver"], correct: 0 },
+                        { question: "Which word describes something that makes you laugh or feel amused?", options: ["A) Funny", "B) Scary", "C) Terrifying", "D) Sad"], correct: 0 },
+                        { question: "What popular fairground food is corn popped with heat?", options: ["A) Popcorn", "B) Cotton candy", "C) Pizza", "D) Burger"], correct: 0 },
+                        { question: "How do you feel when riding a fast roller coaster?", options: ["A) Thrilled / Excited", "B) Bored", "C) Sleepy", "D) Tired"], correct: 0 }
+                    ]
+                }
+            ]
+        };
+
+        let currentGrade = 5;
+        let currentUnitIndex = 0;
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function showGradeTopics(grade) {
+            currentGrade = grade;
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-grade${grade}`).classList.add('active');
+            document.getElementById('topics-section').style.display = 'block';
+            document.getElementById('quiz-section').style.display = 'none';
+            document.getElementById('picker-section').style.display = 'none';
+            document.getElementById('topics-title').innerText = `Grade ${grade} English Units`;
+            
+            const container = document.getElementById('topics-container');
+            container.innerHTML = '';
+            quizData[grade].forEach((unit, index) => {
+                const card = document.createElement('div');
+                card.className = 'topic-card';
+                card.onclick = () => startQuiz(index);
+                card.innerHTML = `<h3>${unit.unitTitle}</h3><p>${unit.questions.length} Questions</p>`;
+                container.appendChild(card);
+            });
+        }
+
+        function startQuiz(unitIndex) {
+            currentUnitIndex = unitIndex;
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById('score').innerText = score;
+            document.getElementById('topics-section').style.display = 'none';
+            document.getElementById('quiz-section').style.display = 'block';
+            loadQuestion();
+        }
+
+        function backToTopics() {
+            document.getElementById('quiz-section').style.display = 'none';
+            document.getElementById('topics-section').style.display = 'block';
+        }
+
+        function showPicker() {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-picker').classList.add('active');
+            document.getElementById('topics-section').style.display = 'none';
+            document.getElementById('quiz-section').style.display = 'none';
+            document.getElementById('picker-section').style.display = 'block';
+            renderStudents();
+        }
+
+        function loadQuestion() {
+            const unit = quizData[currentGrade][currentUnitIndex];
+            const q = unit.questions[currentQuestionIndex];
+            document.getElementById('unit-badge').innerText = unit.unitTitle;
+            document.getElementById('question-text').innerText = `${currentQuestionIndex + 1}. ${q.question}`;
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            q.options.forEach((optionText, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = optionText;
+                btn.onclick = () => checkAnswer(btn, index === q.correct);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(btn, isCorrect) {
+            const options = document.querySelectorAll('.option-btn');
+            options.forEach(b => b.disabled = true);
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                score += 10;
+                document.getElementById('score').innerText = score;
+            } else {
+                btn.classList.add('wrong');
+                const correctIdx = quizData[currentGrade][currentUnitIndex].questions[currentQuestionIndex].correct;
+                options[correctIdx].classList.add('correct');
+            }
+        }
+
+        function nextQuestion() {
+            const unitQuestions = quizData[currentGrade][currentUnitIndex].questions;
+            if (currentQuestionIndex < unitQuestions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                alert(`Quiz Finished! Your Final Score: ${score}`);
+                score = 0;
+                document.getElementById('score').innerText = score;
+                backToTopics();
+            }
+        }
+
+        /* STUDENT PICKER SYSTEM */
+        let students = JSON.parse(localStorage.getItem('smartboard_students')) || ["Alex", "Emma", "John", "Sarah"];
+
+        function saveAndRender() {
+            localStorage.setItem('smartboard_students', JSON.stringify(students));
+            renderStudents();
+        }
+
+        function renderStudents() {
+            const container = document.getElementById('student-list-container');
+            container.innerHTML = '';
+            students.forEach((name, index) => {
+                const tag = document.createElement('div');
+                tag.className = 'student-tag';
+                tag.innerHTML = `${name} <span onclick="removeStudent(${index})">✕</span>`;
+                container.appendChild(tag);
+            });
+        }
+
+        function addStudent() {
+            const input = document.getElementById('student-name-input');
+            const val = input.value.trim();
+            if (val) {
+                const names = val.split(',').map(n => n.trim()).filter(n => n);
+                students.push(...names);
+                input.value = '';
+                saveAndRender();
+            }
+        }
+
+        function removeStudent(index) {
+            students.splice(index, 1);
+            saveAndRender();
+        }
+
+        function rollDice() {
+            if (students.length === 0) {
+                alert("Please add student names first!");
+                return;
+            }
+            const display = document.getElementById('picker-display');
+            let count = 0;
+            const diceFaces = ['🎲 ⚀', '🎲 ⚁', '🎲 ⚂', '🎲 ⚃', '🎲 ⚄', '🎲 ⚅'];
+            
+            const timer = setInterval(() => {
+                const randomFace = diceFaces[Math.floor(Math.random() * diceFaces.length)];
+                const randomStudent = students[Math.floor(Math.random() * students.length)];
+                display.innerText = `${randomFace} ${randomStudent}`;
+                count++;
+                if (count > 12) {
+                    clearInterval(timer);
+                    const winner = students[Math.floor(Math.random() * students.length)];
+                    display.innerText = `🎯 ${winner}`;
+                }
+            }, 70);
+        }
+
+        /* TIMER SYSTEM */
+        let timerInterval, seconds = 0, isRunning = false;
+        function toggleTimer() {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                isRunning = false;
+            } else {
+                isRunning = true;
+                timerInterval = setInterval(() => {
+                    seconds++;
+                    let mins = Math.floor(seconds / 60);
+                    let secs = seconds % 60;
+                    document.getElementById('timer-display').innerText = 
+                        (mins < 10 ? "0" + mins : mins) + ":" + (secs < 10 ? "0" + secs : secs);
+                }, 1000);
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            seconds = 0;
+            document.getElementById('timer-display').innerText = "00:00";
+        }
+
+        showGradeTopics(5);
+    </script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <!-- Mobil ve akıllı tahta ekran ölçekleme ayarları -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Web Sitesi</title>
+
+  <style>
+    /* DOKUNMATİK GECİKMESİNİ VE KASMALARI SIFIRLAYAN GLOBAL CSS */
+    * {
+      touch-action: manipulation; /* Mobil tarayıcıların 300ms tıklama gecikmesini siler */
+      -webkit-tap-highlight-color: transparent; /* Mobilde dokununca çıkan gri kutuyu kaldırır */
+      -webkit-touch-callout: none; /* Basılı tutunca çıkan menüyü engeller */
+      will-change: transform; /* Donanım ivmelendirmesini aktif eder */
+      transform: translateZ(0); /* Akıllı tahta ve cihazlarda GPU/ekran kartını çalıştırır */
+    }
+
+    /* Buraya sitenin mevcut CSS kodları gelecektir */
+  </style>
+</head>
+<body>
+
+  <!-- BÜTÜN SİTE İÇERİĞİ / HTML KODLARI BURADA YER ALIR -->
+
+
+  <!-- GECİKMESİZ TEPKİ VEREN YÜKSEK PERFORMANSLI JAVASCRIPT -->
+  <script>
+    // Tüm sitede dokunmatik olayları milisaniyelik gecikme olmadan (0 Lag) tetikler
+    document.addEventListener('pointerdown', function(e) {
+      // Tıklanabilir elemanlara dokunulduğunda anında tepki verir
+      if (e.target.closest('a, button, input, [role="button"]')) {
+        // İsteğe bağlı dokunma geribildirimi
+      }
+    }, { passive: true });
+  </script>
+</body>
+</html>
